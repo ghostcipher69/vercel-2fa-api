@@ -2,10 +2,7 @@ import axios from "axios";
 
 export default async function handler(req, res) {
   const { key } = req.query;
-
-  if (!key) {
-    return res.status(400).json({ error: "Key missing" });
-  }
+  if (!key) return res.status(400).json({ error: "Key missing" });
 
   try {
     const response = await axios.post(
@@ -16,17 +13,15 @@ export default async function handler(req, res) {
           "Content-Type": "application/x-www-form-urlencoded",
           "User-Agent": "Mozilla/5.0",
           "X-Requested-With": "XMLHttpRequest",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         },
       }
     );
 
     const match = response.data.match(/value="(\d{6})"/);
+    if (!match) return res.status(500).json({ error: "Code not found" });
 
-    if (!match) {
-      return res.status(500).json({ error: "Code not found" });
-    }
-
-    res.status(200).json({ code: match[1] });
+    res.json({ code: match[1] });
   } catch (err) {
     res.status(500).json({ error: "Request failed", details: err.message });
   }
